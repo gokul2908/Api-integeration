@@ -1,45 +1,46 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 import "./App.css";
 
 function App() {
   const [data, setData] = useState([]);
+  const [page, setPage] = useState(1);
+
   useEffect(() => {
     fetchApiData();
   }, []);
+
   async function fetchApiData() {
-    const { data: meals } = await axios.get(
-      "https://www.themealdb.com/api/json/v1/1/search.php?f=a"
+    const { data } = await axios.get(
+      `https://api.unsplash.com/photos/random/?client_id=MLy999IiOMk3f-7cwyilY5ncw_VsSf3FtwiZz-mSH9U`
     );
-    setData(meals.meals);
+    console.log(page * 10, data.length, data);
+    // if(page * 10 > data.length)
+    setData((prev) => [...prev, ...data.map(({ urls: { raw } }) => raw)]);
   }
+
   return (
     <div className="container">
-      {data.map((e) => {
-        const { idMeal, strMealThumb, strMeal, strYoutube, strInstructions } =
-          e;
-        return (
-          <div className="card" style={{ width: "18rem" }} key={idMeal}>
-            <img
-              className="card-img-top"
-              src={strMealThumb}
-              alt="Card image cap"
-            />
-            <div className="card-body">
-              <h5 className="card-title">{strMeal}</h5>
-              <p className="card-text">{strInstructions.slice(0, 100).concat("...")}</p>
-              <div className="button_ref">
-                <a href={strYoutube} className="btn btn-primary">
-                  Youtube
-                </a>
-                <a href={strYoutube} className="btn btn-primary">
-                  Know more
-                </a>
-              </div>
+      <InfiniteScroll
+        dataLength={data.length}
+        next={() =>
+          setPage((prev) => {
+            fetchApiData(prev + 1);
+            return prev + 1;
+          })
+        }
+        hasMore={true}
+        loader={<div className="loader"></div>}
+      >
+        {data.map((e, i) => {
+          return (
+            <div className="card" style={{ width: "18rem" }} key={i}>
+              <img className="card-img-top" src={e} alt="Card image cap" />
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </InfiniteScroll>
     </div>
   );
 }
