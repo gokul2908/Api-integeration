@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import "./App.css";
 
+let page = 1;
+
+
 function App() {
   const [images, setImages] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
-  let page = 1;
 
   useEffect(() => {
     fetchApiData();
